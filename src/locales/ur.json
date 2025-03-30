@@ -1,0 +1,21 @@
+{
+    "sidebar": {
+      "dashboard": "ڈیش بورڈ",
+      "createOrder": "آڈر بناؤ",
+      "inventory": "اسٹور",
+      "salesMen": "سیلز مین",
+      "customers": "دوکاندار",
+      "orders": "آڈرز",
+      "sales": "فروشات",
+      "products": "مصنوعات",
+      "reports": "رپورٹس",
+      "settings": "ترتیبات",
+      "suppliers": "سپلائرز",
+      "Purchase" : "خریدا",
+      "gatePass" : "گیٹ پاس",
+      "expenses" : "اخراجات"
+
+    },
+    "toggleLanguage": "انگریزی"
+  }
+  

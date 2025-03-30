@@ -1,0 +1,21 @@
+{
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "createOrder": "Create Order",
+      "inventory": "Inventory",
+      "salesMen": "sales Men",
+      "customers": "Customers",
+      "orders": "Orders",
+      "sales": "Sales",
+      "products": "Products",
+      "reports": "Reports",
+      "settings": "Settings",
+      "suppliers": "Suppliers",
+      "purchase" : "Purchase",
+      "gatePass" : "Gate Pass",
+      "expenses" : "Expenses"
+
+    },
+    "toggleLanguage": "Urdu"
+  }
+  
