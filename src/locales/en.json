@@ -13,7 +13,8 @@
       "suppliers": "Suppliers",
       "purchase" : "Purchase",
       "gatePass" : "Gate Pass",
-      "expenses" : "Expenses"
+      "expenses" : "Expenses",
+      "totalCustomers": "Total Customers"
 
     },
     "toggleLanguage": "Urdu"

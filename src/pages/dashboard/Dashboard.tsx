@@ -23,7 +23,7 @@ function Dashboard() {
       percentage: "2%",
       footerText: "Supplier count fluctuating",
     },
-        {
+    {
       title: "Total Products",
       value: "1,250",
       description: "Stock available",
@@ -45,20 +45,15 @@ function Dashboard() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      {/* <LanguageToggle/> */}
-      {/* <div className="@container/main flex flex-1 flex-col gap-2"> */}
-        {/* <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6"> */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 lg:px-6">
-      {stats.map((stat, index) => (
-        <StatsCard key={index} {...stat} />
-      ))}
-    </div>
-          <div className="px-4 lg:px-6">
-            <ChartAreaInteractive />
-          </div>
-          <DataTable data={data} />
-        {/* </div> */}
-      {/* </div> */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 lg:px-6">
+        {stats.map((stat, index) => (
+          <StatsCard key={index} {...stat} />
+        ))}
+      </div>
+      <div className="px-4 lg:px-6">
+        <ChartAreaInteractive />
+      </div>
+      <DataTable data={data} />
     </div>
   );
 }

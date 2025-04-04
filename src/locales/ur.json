@@ -13,7 +13,9 @@
       "suppliers": "سپلائرز",
       "Purchase" : "خریدا",
       "gatePass" : "گیٹ پاس",
-      "expenses" : "اخراجات"
+      "expenses" : "اخراجات",
+      "totalCustomers": "ٹوٹل کسٹمرز"
+
 
     },
     "toggleLanguage": "انگریزی"
