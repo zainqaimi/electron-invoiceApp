@@ -14,7 +14,8 @@
       "purchase" : "Purchase",
       "gatePass" : "Gate Pass",
       "expenses" : "Expenses",
-      "totalCustomers": "Total Customers"
+      "totalCustomers": "Total Customers",
+      "totalProducts": "Total Products"
 
     },
     "toggleLanguage": "Urdu"

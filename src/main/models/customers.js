@@ -1,4 +1,4 @@
-import db from "./connection.js";
+import db from "../database/connection.js";
 
 db.prepare(`
   CREATE TABLE IF NOT EXISTS customers (

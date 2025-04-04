@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "noImplicitAny": false,
     "target": "ESNext",
     "module": "ESNext",
     "strict": true,

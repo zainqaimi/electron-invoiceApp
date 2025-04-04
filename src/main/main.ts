@@ -4,7 +4,7 @@ import path from "path";
 let mainWindow: BrowserWindow;
 
 app.whenReady().then(() => {
-  const preloadPath = path.join(__dirname, "src/main/preload.js"); // Ensure this path is correct
+  const preloadPath = path.join(__dirname, "preload.js"); // Ensure this path is correct
   console.log("🛠 Preload Path:", preloadPath);
 
   mainWindow = new BrowserWindow({

@@ -1,42 +1,44 @@
-import { useEffect } from "react";
+import { useState } from "react";
 
-function Expenses() {
-  useEffect(() => {
-    console.log("Electron:", window.electron);
-    console.log(
-      "Electron API Methods:",
-      window.electron ? Object.keys(window.electron) : "Not Available"
-    );
-  }, []);
+export default function Expenses() {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
+  const [message, setMessage] = useState("");
 
-  const addTestProduct = async () => {
-    if (!window.electron) {
-      console.error("Electron API is not available!");
+  const saveProduct = async () => {
+    if (!name || !price || !stock) {
+      setMessage("Please fill all fields.");
       return;
     }
 
-    const product = {
-      name: "Test Product",
-      company: "Test Company",
-      stock: 10,
-      price: 99.99,
-      image: "",
-    };
+    const product = { name, price: Number(price), stock: Number(stock) };
 
     try {
-      console.log("Invoking add-product...");
-      const response = await window.electron.invoke("add-product", product);
-      console.log("Product Added:", response);
+      // 🔹 **Fix: Explicitly define response type**
+      const response: { success: boolean; message?: string } = await window.api.addProduct(product);
+
+      if (response.success) {
+        setMessage("Product saved successfully!");
+        setName("");
+        setPrice("");
+        setStock("");
+      } else {
+        setMessage("Error: " + (response.message || "Unknown error"));
+      }
     } catch (error) {
-      console.error("Error adding product:", error);
+      setMessage("Unexpected error: " + error);
     }
   };
 
   return (
-    <button onClick={addTestProduct} className="p-2 bg-blue-500 text-white rounded">
-      Add Test Product
-    </button>
+    <div>
+      <h1>Add Product</h1>
+      <input type="text" placeholder="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
+      <input type="number" placeholder="Stock" value={stock} onChange={(e) => setStock(e.target.value)} />
+      <button onClick={saveProduct}>Save Product</button>
+      <p>{message}</p>
+    </div>
   );
 }
-
-export default Expenses;
