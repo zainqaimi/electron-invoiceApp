@@ -1,10 +1,12 @@
 import { StatsCard } from "@/components/StatsCard"
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
-const {t} = useTranslation()
+
+function Customers() {
+  const {t} = useTranslation()
 const customers = [
   {
-    title: t("sidebar.customers"),
+    title: `${t("sidebar.totalCustomers")}`,
     value: "1500",
     description: "credit",
     icon: TrendingUpIcon,
@@ -40,7 +42,6 @@ const customers = [
     footerText: "Supplier count fluctuating",
   },
 ]
-function Customers() {
   return (
     <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 lg:px-6">
@@ -48,7 +49,7 @@ function Customers() {
               <StatsCard key={index} {...stat} />
             ))}
           </div>
-    <div>Customers</div>
+    <div>{t("sidebar.customers")}</div>
     </>
   )
 }
