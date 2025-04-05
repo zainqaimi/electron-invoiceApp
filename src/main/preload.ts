@@ -1,7 +1,6 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld("api", {
-  addProduct: async (product: { name: string; price: number; stock: number }): Promise<{ success: boolean; message?: string }> => {
-    return await ipcRenderer.invoke("add-product", product);
-  },
+contextBridge.exposeInMainWorld('electron', {
+  // Example of exposing a method to renderer process
+  doSomething: () => ipcRenderer.invoke('do-something'),
 });

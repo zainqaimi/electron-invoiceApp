@@ -1,22 +1,25 @@
-import db from "../connection.js";
+const db = require('../database/connection');
 
-// ➕ Add Product
-export const addProduct = (name, price, stock, supplier_id = null, company_id = null) => {
-  const stmt = db.prepare("INSERT INTO products (name, price, stock, supplier_id, company_id) VALUES (?, ?, ?, ?, ?)");
-  return stmt.run(name, price, stock, supplier_id, company_id).lastInsertRowid;
+const createProductTable = () => {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      sku TEXT UNIQUE,
+      quantity INTEGER NOT NULL DEFAULT 0,
+      price REAL NOT NULL,
+      company_id INTEGER,
+      FOREIGN KEY(company_id) REFERENCES companies(id)
+    )
+  `).run();
 };
 
-// 🔍 Get All Products
-export const getProducts = () => {
-  return db.prepare("SELECT * FROM products").all();
+const insertMockProducts = () => {
+  const stmt = db.prepare('INSERT INTO products (name, sku, quantity, price) VALUES (?, ?, ?, ?)');
+  stmt.run('Sample Product', 'SKU001', 10, 99.99);
 };
 
-// ✏️ Update Product
-export const updateProduct = (id, name, price, stock) => {
-  return db.prepare("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?").run(name, price, stock, id);
-};
-
-// ❌ Delete Product
-export const deleteProduct = (id) => {
-  return db.prepare("DELETE FROM products WHERE id = ?").run(id);
+module.exports = {
+  createProductTable,
+  insertMockProducts
 };

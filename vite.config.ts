@@ -1,25 +1,21 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import * as path from "path";
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react-swc"
+import path from "path"
 
 export default defineConfig({
+  root: path.resolve(__dirname, "src/renderer"), // frontend root
   base: "./",
   plugins: [react()],
   build: {
-    outDir: "dist",
+    outDir: path.resolve(__dirname, "dist/renderer"),
+    emptyOutDir: true,
     rollupOptions: {
-      external: ["electron", "fs", "path"], // ✅ Electron & Node modules ko exclude karo
-      input: {
-        frontend: path.resolve(__dirname, "index.html"), // ✅ React App
-        backend: path.resolve(__dirname, "src/main/main.ts"), // ✅ Electron Main Process
-        preload: path.resolve(__dirname, "src/main/preload.ts"), // ✅ Preload Script
-      },
+      external: ["electron", "fs", "path"],
     },
-    "chunkSizeWarningLimit": 1024
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"), // ✅ Frontend aur Backend ke liye sahi alias
+      "@": path.resolve(__dirname, "src"),
     },
   },
-});
+})

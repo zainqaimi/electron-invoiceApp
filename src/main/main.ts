@@ -1,21 +1,31 @@
-import { app, BrowserWindow } from "electron";
-import path from "path";
+import { app, BrowserWindow, ipcMain } from 'electron';
+import * as path from 'path';
 
-let mainWindow: BrowserWindow;
+function createWindow() {
+  const isDev = !app.isPackaged;
+  const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-app.whenReady().then(() => {
-  const preloadPath = path.join(__dirname, "preload.js"); // Ensure this path is correct
-  console.log("🛠 Preload Path:", preloadPath);
-
-  mainWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      preload: preloadPath, // Make sure this file exists!
-      contextIsolation: true,
+      preload: path.resolve(__dirname, 'main/preload.js'),
       nodeIntegration: false,
+      contextIsolation: true,
     },
   });
 
-  mainWindow.loadURL("http://localhost:5173");
+  win.loadURL(
+    isDev
+      ? 'http://localhost:5173'
+      : `file://${path.join(__dirname, '../renderer/index.html')}`
+  );
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });

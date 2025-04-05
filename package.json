@@ -1,12 +1,13 @@
-{"name": "my-electron-app",
+{
+  "name": "my-electron-app",
   "private": true,
   "version": "0.0.0",
-  "type": "commonjs",
-  "main": "dist/main.js",
+  "type": "module",
+  "main": "dist/main/main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "tsc && vite build",
-    "start": "electron .",
+    "start": "electron --loader ts-node/esm .",
     "package": "electron-builder --dir",
     "dist": "electron-builder"
   },
@@ -59,13 +60,14 @@
     "electron": "^35.0.2",
     "postcss": "^8.5.3",
     "tailwindcss-animate": "^1.0.7",
+    "ts-node": "^10.9.2",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "wait-on": "^8.0.3"
   },
   "build": {
     "appId": "com.yourcompany.yourapp",
-    "productName": "MyElectronApp",
+    "productName": "inventory",
     "directories": {
       "output": "dist"
     },

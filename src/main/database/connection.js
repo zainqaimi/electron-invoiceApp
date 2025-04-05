@@ -1,6 +1,11 @@
-import Database from "better-sqlite3";
-import path from "path";
+// connection.js
+const Database = require('better-sqlite3');
+const path = require('path');
+const dbPath = path.resolve(__dirname, '../../data/inventory.db');
 
-const db = new Database(path.join(__dirname, "inventory.db"), { verbose: console.log });
+const db = new Database(dbPath);
 
-export default db;
+// Enable foreign keys
+db.pragma('foreign_keys = ON');
+
+module.exports = db;
