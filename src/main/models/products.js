@@ -1,25 +1,21 @@
-const db = require('../database/connection');
+import db from '../database/connection.js';
 
-const createProductTable = () => {
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      sku TEXT UNIQUE,
-      quantity INTEGER NOT NULL DEFAULT 0,
-      price REAL NOT NULL,
-      company_id INTEGER,
-      FOREIGN KEY(company_id) REFERENCES companies(id)
-    )
-  `).run();
-};
+export const Product = {
+  add: (name, price, stock, imagePath = null) => {
+    let imageBlob = null;
+    if (imagePath) {
+      imageBlob = fs.readFileSync(imagePath);
+    }
+    return db
+      .prepare('INSERT INTO products (name, price, stock, image) VALUES (?, ?, ?, ?)')
+      .run(name, price, stock, imageBlob);
+  },
 
-const insertMockProducts = () => {
-  const stmt = db.prepare('INSERT INTO products (name, sku, quantity, price) VALUES (?, ?, ?, ?)');
-  stmt.run('Sample Product', 'SKU001', 10, 99.99);
-};
-
-module.exports = {
-  createProductTable,
-  insertMockProducts
+  getAll: () => {
+    const products = db.prepare('SELECT * FROM products').all();
+    return products.map(product => ({
+      ...product,
+      image: product.image ? product.image.toString('base64') : null,
+    }));
+  },
 };

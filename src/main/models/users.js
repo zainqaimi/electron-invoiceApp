@@ -1,23 +1,25 @@
-const db = require('../database/connection');
+import db from '../database/connection.js';
 
-const createUserTable = () => {
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'user'
-    )
-  `).run();
-};
+export const User = {
+  // Add user (with optional image)
+  add: (name, email, imagePath = null) => {
+    let imageBlob = null;
+    if (imagePath) {
+      imageBlob = fs.readFileSync(imagePath); // Read image file
+    }
+    return db
+      .prepare('INSERT INTO users (name, email, image) VALUES (?, ?, ?)')
+      .run(name, email, imageBlob);
+  },
 
-const insertMockUsers = () => {
-  const stmt = db.prepare('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)');
-  stmt.run('Admin User', 'admin@example.com', 'hashed-password', 'admin');
-};
+  // Get all users (with image as Base64)
+  getAll: () => {
+    const users = db.prepare('SELECT * FROM users').all();
+    return users.map(user => ({
+      ...user,
+      image: user.image ? user.image.toString('base64') : null, // Convert BLOB to Base64
+    }));
+  },
 
-module.exports = {
-  createUserTable,
-  insertMockUsers
+  // Delete, Update, etc.
 };

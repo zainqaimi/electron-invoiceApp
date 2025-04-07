@@ -1,14 +1,11 @@
-import { ipcMain } from "electron";
-import { addProduct, getProducts, updateProduct, deleteProduct } from "../database/models/products.js";
-
-// ➕ Add Product IPC
-ipcMain.handle("add-product", (_, product) => addProduct(product.name, product.price, product.stock));
-
-// 🔍 Get All Products IPC
-ipcMain.handle("get-products", () => getProducts());
-
-// ✏️ Update Product IPC
-ipcMain.handle("update-product", (_, product) => updateProduct(product.id, product.name, product.price, product.stock));
-
-// ❌ Delete Product IPC
-ipcMain.handle("delete-product", (_, id) => deleteProduct(id));
+ipcMain.handle('get-products', () => {
+    const stmt = db.prepare('SELECT * FROM products');
+    return stmt.all();
+  });
+  
+  ipcMain.handle('add-product', (event, product) => {
+    const { name, price, stock } = product;
+    const stmt = db.prepare('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)');
+    stmt.run(name, price, stock);
+  });
+  
