@@ -1,31 +1,58 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import * as path from 'path';
+import { app, BrowserWindow, protocol } from "electron";
+import path from "path";
+import isDev from "electron-is-dev";
+import { initDatabase } from "./database/connection.js";
+import { fileURLToPath } from "url";
 
+import "./ipc/usersIPC.js";
+import "./ipc/companyIPC.js";
+import "./ipc/backupIPC.js";
+let mainWindow;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 function createWindow() {
-  const isDev = !app.isPackaged;
-  const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    // fullscreen: true,
+    width: 1300,
+    height: 1200,
     webPreferences: {
-      preload: path.resolve(__dirname, 'main/preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, "preload.cjs"),
+      sandbox: false,
     },
   });
 
-  win.loadURL(
+  mainWindow.loadURL(
     isDev
-      ? 'http://localhost:5173'
-      : `file://${path.join(__dirname, '../renderer/index.html')}`
+      ? "http://localhost:5173"
+      : `file://${path.join(__dirname, "../dist/index.html")}`
   );
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+  }
 }
 
-app.whenReady().then(createWindow);
+app.commandLine.appendSwitch("disable-features", "Autofill");
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.whenReady().then(() => {
+  createWindow();
+  initDatabase();
+  protocol.registerFileProtocol("local", (request, callback) => {
+    const url = request.url.substr(8);
+    callback({ path: path.normalize(`${__dirname}/${url}`) });
+  });
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
+  }
+});
+
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
   }
 });

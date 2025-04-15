@@ -1,32 +1,57 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import { app } from 'electron';
-import fs from 'fs';
+import path from "path";
+import { fileURLToPath } from "url";
+import Database from "better-sqlite3";
+import fs from "fs";
 
-// DB Path (Auto-creates in userData)
-const dbPath = path.join(app.getPath('userData'), 'invoice-app.db');
-const db = new Database(dbPath);
+// ES module ke liye __dirname ka workaround
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Create Tables (with BLOB for images)
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE,
-    image BLOB,  -- Store image as binary
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
+// Development mode ka check kar rahe hain
+const isDev = process.env.NODE_ENV === "development";
 
-  CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    price REAL,
-    stock INTEGER,
-    image BLOB,  -- Optional product image
-    category TEXT
-  );
+// Correct Database Path
+let db;
 
-  -- Add other tables (invoices, suppliers, etc.)
-`);
+export function initDatabase() {
+  const dbPath = isDev
+    ? path.join(__dirname, "db.sqlite")
+    : path.join(__dirname, "db.sqlite");
 
-export default db;
+  const dbInstance = new Database(dbPath);
+  db = dbInstance; // Assign outer scoped `db`
+
+  console.log("Database connected:", dbPath);
+
+  db.prepare(
+    `
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      image TEXT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      is_logged_in BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  ).run();
+
+  db.prepare(
+    `
+    CREATE TABLE IF NOT EXISTS companies (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT,
+      phone TEXT,
+      address TEXT,
+      logo TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `
+  ).run();
+}
+
+export function getDb() {
+  return db;
+}

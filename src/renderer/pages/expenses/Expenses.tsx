@@ -1,8 +1,8 @@
+import React from "react";
+import Users from "../Users";
 
 function Expenses() {
-  return (
-    <div>Expenses</div>
-  )
+  return <Users />;
 }
 
-export default Expenses
+export default Expenses;

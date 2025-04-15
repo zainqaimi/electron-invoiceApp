@@ -1,11 +1,13 @@
-ipcMain.handle('get-products', () => {
-    const stmt = db.prepare('SELECT * FROM products');
-    return stmt.all();
-  });
-  
-  ipcMain.handle('add-product', (event, product) => {
-    const { name, price, stock } = product;
-    const stmt = db.prepare('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)');
-    stmt.run(name, price, stock);
-  });
-  
+import { ipcMain } from 'electron';
+import { addProduct } from '../models/products';  // Ensure this is correct
+
+ipcMain.handle('add-product', async (_, product) => {
+  console.log('Adding product:', product);  // Log to check
+  try {
+    const productId = await addProduct(product);
+    return productId;  // Return product ID to renderer
+  } catch (error) {
+    console.error('Error adding product:', error);
+    throw error;  // Propagate error back to renderer
+  }
+});

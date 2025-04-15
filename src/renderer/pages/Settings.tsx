@@ -1,7 +1,13 @@
+import ExportBackup from "../components/ExportBackup"
+import ImportBackup from "../components/ImportBackup"
 
 function Settings() {
   return (
-    <div>Settings</div>
+    <>
+    <h1>Settings</h1>
+    <ExportBackup />
+    <ImportBackup />
+    </>
   )
 }
 
