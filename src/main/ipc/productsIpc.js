@@ -1,13 +1,22 @@
-import { ipcMain } from 'electron';
-import { addProduct } from '../models/products';  // Ensure this is correct
+import { ipcMain } from "electron";
+import * as productModel from "../models//productsModel.js";
 
-ipcMain.handle('add-product', async (_, product) => {
-  console.log('Adding product:', product);  // Log to check
-  try {
-    const productId = await addProduct(product);
-    return productId;  // Return product ID to renderer
-  } catch (error) {
-    console.error('Error adding product:', error);
-    throw error;  // Propagate error back to renderer
-  }
+// Create
+ipcMain.handle("products:create", (event, product) => {
+  return productModel.createProduct(product);
+});
+
+// Get All Products
+ipcMain.handle("products:get", () => {
+  return productModel.getAllProducts();
+});
+
+// Update Product
+ipcMain.handle("products:update", (event, id, product) => {
+  return productModel.updateProduct(id, product);
+});
+
+// Delete Product
+ipcMain.handle("products:delete", (event, id) => {
+  return productModel.deleteProduct(id);
 });

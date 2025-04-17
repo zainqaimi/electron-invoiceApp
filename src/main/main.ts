@@ -3,9 +3,17 @@ import path from "path";
 import isDev from "electron-is-dev";
 import { initDatabase } from "./database/connection.js";
 import { fileURLToPath } from "url";
-
 import "./ipc/usersIPC.js";
 import "./ipc/companyIPC.js";
+import "./ipc/suppliersIPC.js";
+import "./ipc/salesmenIPC.js";
+import "./ipc/customersIpc.js";
+import "./ipc/productsIPC.js";
+import "./ipc/unitsIPC.js";
+import "./ipc/packingTypesIPC.js";
+import "./ipc/purchaseBillsIPC.js";
+import "./ipc/purchaseItemsIPC.js";
+import "./ipc/stockIPC.js";
 import "./ipc/backupIPC.js";
 let mainWindow;
 const __filename = fileURLToPath(import.meta.url);
