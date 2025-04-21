@@ -79,7 +79,7 @@ export function initDatabase() {
   email TEXT,
   phone TEXT,
   address TEXT,
-  balance INTEGER DEFAULT 0, 
+  balance INTEGER DEFAULT 0,
   salesmen_id INTEGER, -- Reference to salesmen table
   status TEXT, -- active or inactive
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -149,52 +149,11 @@ export function initDatabase() {
       quantity INTEGER,
       price REAL,
       cost_price REAL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (bill_id) REFERENCES purchase_bills(id),
-      FOREIGN KEY (product_id) REFERENCES products(id),
-      created_at
-      FROM purchase_bills
-      ORDER BY created_at DESC
+      FOREIGN KEY (product_id) REFERENCES products(id)
     )
   `
-  ).run();
-  db.prepare(
-    `
-  CREATE TABLE IF NOT EXISTS invoices (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  customer_id INTEGER,
-  total_amount INTEGER,
-  discount INTEGER,
-  paid_amount INTEGER,
-  balance_due INTEGER,
-  invoice_date TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (customer_id) REFERENCES customers(id)
-)`
-  ).run();
-  db.prepare(
-    `
-    CREATE TABLE IF NOT EXISTS invoice_items (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  invoice_id INTEGER,
-  product_id INTEGER,
-  quantity INTEGER,
-  rate INTEGER,
-  total INTEGER,
-  FOREIGN KEY (invoice_id) REFERENCES invoices(id),
-  FOREIGN KEY (product_id) REFERENCES products(id)
-)`
-  ).run();
-  db.prepare(
-    `
-CREATE TABLE IF NOT EXISTS customer_ledger (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  customer_id INTEGER,
-  type TEXT, -- 'invoice' or 'payment'
-  reference_id INTEGER, -- invoice id or payment id
-  amount INTEGER,
-  date TEXT,
-  note TEXT
-) `
   ).run();
 }
 

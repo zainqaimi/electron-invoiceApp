@@ -9,6 +9,7 @@ import {
   SelectContent,
   SelectItem,
 } from "../components/ui/select";
+
 type Product = {
   id: number;
   image: string;
@@ -19,6 +20,8 @@ type Product = {
   price: number;
   cost_price?: number;
   description?: string;
+  units_per_pack?: number;
+  quantity?: number;
   created_at?: string;
 };
 
@@ -31,6 +34,8 @@ type ProductFormData = {
   price: number;
   cost_price: number;
   description: string;
+  quantity?: number;
+  units_per_pack?: number;
 };
 
 const defaultProduct: ProductFormData = {
@@ -42,6 +47,8 @@ const defaultProduct: ProductFormData = {
   price: 0,
   cost_price: 0,
   description: "",
+  units_per_pack: 0,
+  quantity: 0,
 };
 
 export default function Products() {
@@ -51,10 +58,12 @@ export default function Products() {
   const [brands, setBrands] = useState<string[]>([]);
   const [units, setUnits] = useState<string[]>([]);
   const [packingTypes, setPackingTypes] = useState<string[]>([]);
+
   const fetchUnits = async () => {
     const data = await window.electron.ipcRenderer.invoke("units:get");
     setUnits(data.map((u) => u.name));
   };
+
   const fetchPackingTypes = async () => {
     const data = await window.electron.ipcRenderer.invoke("packing_types:get");
     setPackingTypes(data.map((p) => p.name));
@@ -95,7 +104,6 @@ export default function Products() {
         );
         console.log("Product created with ID:", newId);
       }
-
       fetchProducts();
       resetForm();
     } catch (error) {
@@ -105,7 +113,10 @@ export default function Products() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm({
+      ...form,
+      [name]: name === "units_per_pack" ? Number(value) : value,
+    });
   };
 
   const handleImage = (e) => {
@@ -127,6 +138,7 @@ export default function Products() {
       cost_price: product.cost_price || 0,
       description: product.description || "",
       image: product.image || "",
+      units_per_pack: product.units_per_pack || 0,
     });
     setEditId(product.id);
   };
@@ -140,6 +152,7 @@ export default function Products() {
     setForm(defaultProduct);
     setEditId(null);
   };
+
   useEffect(() => {
     fetchUnits();
     fetchPackingTypes();
@@ -154,10 +167,12 @@ export default function Products() {
           <h2 className="text-xl font-semibold">
             {editId ? "Edit Product" : "Add Product"}
           </h2>
+
           <div>
             <Label>Name</Label>
             <Input name="name" value={form.name} onChange={handleChange} />
           </div>
+
           <div>
             <Label>Brand</Label>
             <Select
@@ -168,8 +183,7 @@ export default function Products() {
               }
             >
               <SelectTrigger>
-                <span>{form.brand || "Select a brand"}</span>{" "}
-                {/* Show the selected brand */}
+                <span>{form.brand || "Select a brand"}</span>
               </SelectTrigger>
               <SelectContent>
                 {brands.map((brand) => (
@@ -225,30 +239,58 @@ export default function Products() {
             </Select>
           </div>
 
+          {form.unit && form.packing_type && (
+            <div>
+              <Label>
+                {form.unit} in {form.packing_type}
+              </Label>
+              <Input
+                type="number"
+                name="units_per_pack"
+                value={form.units_per_pack}
+                onChange={handleChange}
+                placeholder={`Enter units in one ${form.packing_type}`}
+              />
+            </div>
+          )}
+
           <div>
             <Label>Price</Label>
             <Input
               type="number"
               name="price"
               value={form.price}
-              onChange={handleChange}
+              // onChange={handleChange}
+              readOnly
             />
           </div>
+
           <div>
             <Label>Cost Price</Label>
             <Input
               type="number"
               name="cost_price"
               value={form.cost_price}
-              onChange={handleChange}
+              // onChange={handleChange}
+              readOnly
             />
           </div>
+
           <div>
             <Label>Description</Label>
             <Input
               name="description"
               value={form.description}
               onChange={handleChange}
+            />
+          </div>
+          <div>
+            <Label>Quantity</Label>
+            <Input
+              name="description"
+              value={form.quantity}
+              // onChange={handleChange}
+              readOnly
             />
           </div>
           <div>
@@ -262,6 +304,7 @@ export default function Products() {
               />
             )}
           </div>
+
           <Button onClick={handleSubmit}>{editId ? "Update" : "Create"}</Button>
           {editId && (
             <Button variant="ghost" onClick={resetForm}>
@@ -289,6 +332,19 @@ export default function Products() {
               <p>
                 <strong>Price:</strong> {product.price}
               </p>
+              <p>
+                <strong>
+                  {product.unit} in {product.packing_type}:
+                </strong>{" "}
+                {product.units_per_pack}
+              </p>
+              <p>
+                <strong>Stock:</strong> {product.quantity ?? 0}
+              </p>
+              <p>
+                <strong>cost_price:</strong> {product.cost_price ?? 0}
+              </p>
+              {/* ✅ Add this */}
               <div className="flex gap-2">
                 <Button onClick={() => handleEdit(product)}>Edit</Button>
                 <Button

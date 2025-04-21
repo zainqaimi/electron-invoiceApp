@@ -30,6 +30,12 @@ declare global {
         logoutUser: () => Promise<void>;
         isLogin: () => Promise<boolean>;
       };
+      purchase: {
+        create: (bill: any) => Promise<any>;
+        getAll: () => Promise<any>;
+        getById: (billId: number) => Promise<any>;
+        delete: (billId: number) => Promise<any>;
+      };
     };
   }
 }

@@ -1,12 +1,29 @@
 import { useState } from "react";
 import { Input } from "@/renderer/components/ui/input";
 import { Button } from "@/renderer/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/renderer/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/renderer/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/renderer/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/renderer/components/ui/table";
 import { Label } from "@/renderer/components/ui/label";
 
 export default function CreateOrder() {
-  const [invoice] = useState({ serial: "103", date: "2025-03-26", customer: "", items: [] });
+  const [invoice] = useState({
+    serial: "103",
+    date: "2025-03-26",
+    customer: "",
+    items: [],
+  });
 
   return (
     <div className="">
@@ -26,7 +43,10 @@ export default function CreateOrder() {
             </div>
             <div>
               <Label>Customer</Label>
-              <Input placeholder="Enter customer name" value={invoice.customer} />
+              <Input
+                placeholder="Enter customer name"
+                value={invoice.customer}
+              />
             </div>
           </div>
 
@@ -42,11 +62,21 @@ export default function CreateOrder() {
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell><Input placeholder="Code" /></TableCell>
-                <TableCell><Input placeholder="Description" /></TableCell>
-                <TableCell><Input type="number" placeholder="Qty" /></TableCell>
-                <TableCell><Input type="number" placeholder="Rate" /></TableCell>
-                <TableCell><Input type="number" readOnly /></TableCell>
+                <TableCell>
+                  <Input placeholder="Code" />
+                </TableCell>
+                <TableCell>
+                  <Input placeholder="Description" />
+                </TableCell>
+                <TableCell>
+                  <Input type="number" placeholder="Qty" />
+                </TableCell>
+                <TableCell>
+                  <Input type="number" placeholder="Rate" />
+                </TableCell>
+                <TableCell>
+                  <Input type="number" readOnly />
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>

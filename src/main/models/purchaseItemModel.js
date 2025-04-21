@@ -1,29 +1,28 @@
 import { getDb } from "../database/connection.js";
 
-// models/purchaseItemModel.js
 export function createPurchaseItem(item) {
   const db = getDb();
   const stmt = db.prepare(`
-    INSERT INTO purchase_items (purchase_id, product_id, quantity, price, discount, tax, total_amount, units_per_pack, packing_type ,created_at)
+    INSERT INTO purchase_items 
+    (bill_id, product_id, product_name, unit, packing_type, units_per_pack, quantity, price, cost_price)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
-    item.purchase_id,
+    item.bill_id,
     item.product_id,
+    item.product_name,
+    item.unit,
+    item.packing_type,
+    item.units_per_pack,
     item.quantity,
     item.price,
-    item.discount,
-    item.tax,
-    item.total_amount,
-    item.units_per_pack,
-    item.packing_type,
-    created_at
+    item.cost_price
   );
   return true;
 }
 
-export function getItemsByPurchaseId(purchase_id) {
+export function getItemsByPurchaseId(bill_id) {
   return getDb()
-    .prepare("SELECT * FROM purchase_items WHERE purchase_id = ?")
-    .all(purchase_id);
+    .prepare("SELECT * FROM purchase_items WHERE bill_id = ?")
+    .all(bill_id);
 }

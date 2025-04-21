@@ -1,8 +1,13 @@
-import React from "react";
 import Users from "../Users";
+import PurchaseForm from "../PurchaseForm";
 
 function Expenses() {
-  return <Users />;
+  return (
+    <>
+      <Users />
+      <PurchaseForm />
+    </>
+  );
 }
 
 export default Expenses;

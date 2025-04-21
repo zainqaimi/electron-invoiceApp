@@ -6,6 +6,7 @@ type CustomerData = {
   email: string;
   phone: string;
   address: string;
+  balance: number;
   salesmen_id: number | null;
   status: string | null;
   created_at: string;
@@ -20,6 +21,7 @@ export default function Customers() {
     email: "",
     phone: "",
     address: "",
+    balance: 0,
     salesmen_id: null,
     status: null,
     created_at: "",
@@ -50,6 +52,7 @@ export default function Customers() {
       email: "",
       phone: "",
       address: "",
+      balance: 0,
       salesmen_id: null,
       status: null,
       created_at: "",
@@ -140,6 +143,13 @@ export default function Customers() {
             setNewCustomer({ ...newCustomer, address: e.target.value })
           }
         />
+        <input
+          className="w-full border p-2 rounded bg-gray-100 text-gray-700"
+          placeholder="Balance"
+          value={newCustomer.balance}
+          readOnly
+        />
+
         <select
           className="w-full border p-2 rounded"
           value={newCustomer.salesmen_id || ""}
@@ -199,6 +209,9 @@ export default function Customers() {
               <div className="text-sm text-gray-600">{customer.email}</div>
               <div className="text-sm text-gray-600">{customer.phone}</div>
               <div className="text-sm text-gray-600">{customer.address}</div>
+              <div className="text-sm text-gray-600">
+                Balance:{customer.balance}
+              </div>
               <div className="text-sm text-gray-400">{customer.status}</div>
               <div className="text-sm text-gray-400">{customer.created_at}</div>
             </div>

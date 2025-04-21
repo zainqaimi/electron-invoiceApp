@@ -1,13 +1,13 @@
 import { getDb } from "../database/connection.js";
-import { updateProductStock } from "./invoice_itemsModel.js"; // Assuming you have this model to update product stock
-import { updateCustomerBalance } from "./customersModel.js"; // Assuming you have this model to update customer balance
-import { addToCustomerLedger } from "./customer_ledgerModel.js"; // To add ledger entries
+import { updateProductStock } from "./invoice_itemsModel.js";
+import { updateCustomerBalance } from "./customersModel.js";
+import { addToCustomerLedger } from "./customer_ledgerModel.js";
 
-// Create Invoice
 export async function createInvoice(invoiceData) {
   const db = getDb();
   const {
     customer_id,
+    salesman_id,
     total_amount,
     discount,
     paid_amount,
@@ -15,17 +15,19 @@ export async function createInvoice(invoiceData) {
     items,
   } = invoiceData;
 
-  // Begin Transaction
   db.prepare("BEGIN").run();
 
   try {
-    // Insert invoice data
     const stmt = db.prepare(`
-      INSERT INTO invoices (customer_id, total_amount, discount, paid_amount, balance_due, invoice_date)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO invoices (
+        customer_id, salesman_id, total_amount, discount, paid_amount,
+        balance_due, invoice_date
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
+
     const result = stmt.run(
       customer_id,
+      salesman_id,
       total_amount,
       discount,
       paid_amount,
@@ -35,7 +37,6 @@ export async function createInvoice(invoiceData) {
 
     const invoiceId = result.lastInsertRowid;
 
-    // Insert items into invoice_items table
     const itemStmt = db.prepare(`
       INSERT INTO invoice_items (invoice_id, product_id, quantity, rate, total)
       VALUES (?, ?, ?, ?, ?)
@@ -49,14 +50,12 @@ export async function createInvoice(invoiceData) {
         item.rate,
         item.quantity * item.rate
       );
-      // Update product stock
+
       await updateProductStock(item.product_id, item.quantity);
     }
 
-    // Update customer balance
     await updateCustomerBalance(customer_id, total_amount - paid_amount);
 
-    // Add ledger entry for invoice
     await addToCustomerLedger(
       customer_id,
       "invoice",
@@ -66,7 +65,6 @@ export async function createInvoice(invoiceData) {
       `Invoice #${invoiceId}`
     );
 
-    // Commit Transaction
     db.prepare("COMMIT").run();
     return invoiceId;
   } catch (err) {
@@ -75,29 +73,37 @@ export async function createInvoice(invoiceData) {
   }
 }
 
-// Get All Invoices
 export function getAllInvoices() {
   const db = getDb();
   return db
     .prepare(
       `
-    SELECT invoices.*, customers.name AS customer_name
+    SELECT 
+      invoices.*, 
+      customers.name AS customer_name,
+      salesmen.name AS salesman_name
     FROM invoices
     JOIN customers ON invoices.customer_id = customers.id
+    JOIN salesmen ON invoices.salesman_id = salesmen.id
+    ORDER BY invoices.id DESC
   `
     )
     .all();
 }
 
-// Get Invoice Details
 export function getInvoiceDetails(invoiceId) {
   const db = getDb();
+
   const invoice = db
     .prepare(
       `
-    SELECT invoices.*, customers.name AS customer_name
+    SELECT 
+      invoices.*, 
+      customers.name AS customer_name,
+      salesmen.name AS salesman_name
     FROM invoices
     JOIN customers ON invoices.customer_id = customers.id
+    JOIN salesmen ON invoices.salesman_id = salesmen.id
     WHERE invoices.id = ?
   `
     )

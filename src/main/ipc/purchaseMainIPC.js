@@ -1,5 +1,14 @@
 import { ipcMain } from "electron";
 import * as purchaseModel from "../models/purchaseBillModel.js";
+import * as purchaseItemModel from "../models/purchaseItemModel.js";
+
+ipcMain.handle("purchaseItem:create", (event, item) => {
+  return purchaseItemModel.createPurchaseItem(item);
+});
+
+ipcMain.handle("purchaseItem:getByBillId", (event, billId) => {
+  return purchaseItemModel.getItemsByPurchaseId(billId);
+});
 
 ipcMain.handle("purchase:create", (event, bill) => {
   return purchaseModel.createPurchaseBill(bill);
