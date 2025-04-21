@@ -32,19 +32,22 @@ export function createProduct(product) {
   const db = getDb();
 
   const stmt = db.prepare(`
-    INSERT INTO products (name, brand, unit, packing_type, price, cost_price, description, image)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (name, brand, unit, packing_type, price, cost_price, description, image, units_per_pack, quantity)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const info = stmt.run(
     product.name,
     product.brand,
     product.unit,
     product.packing_type,
-    product.price,
-    product.cost_price,
+    product.price || 0,
+    product.cost_price || 0,
     product.description,
-    product.image
+    product.image,
+    product.units_per_pack || 0,
+    product.quantity || 0
   );
+
   return info.lastInsertRowid;
 }
 
@@ -63,17 +66,21 @@ export function updateProduct(id, product) {
 
   db.prepare(
     `
-    UPDATE products SET name = ?, brand = ?, unit = ?, packing_type = ?, price = ?, cost_price = ?, description = ?, image = ? WHERE id = ?
+    UPDATE products 
+    SET name = ?, brand = ?, unit = ?, packing_type = ?, price = ?, cost_price = ?, description = ?, image = ?, units_per_pack = ?, quantity = ?
+    WHERE id = ?
   `
   ).run(
     product.name,
     product.brand,
     product.unit,
     product.packing_type,
-    product.price,
-    product.cost_price,
+    product.price || 0,
+    product.cost_price || 0,
     product.description,
     product.image,
+    product.units_per_pack || 0,
+    product.quantity || 0,
     id
   );
 
