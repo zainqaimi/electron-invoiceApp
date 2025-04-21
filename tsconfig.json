@@ -20,6 +20,6 @@
     "isolatedModules": true,
     "jsx": "react-jsx"
   },
-"include": ["src"],
+"include": ["src", "src/main/ipc/.js"],
   "exclude": ["node_modules", "dist"]
 }
