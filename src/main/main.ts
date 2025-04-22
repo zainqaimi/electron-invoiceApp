@@ -14,6 +14,7 @@ import "./ipc/packingTypesIPC.js";
 import "./ipc/purchaseMainIPC.js";
 import "./ipc/invoicesMainIPC.js";
 import "./ipc/backupIPC.js";
+import "./ipc/resetAppIPC.js";
 let mainWindow;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
