@@ -33,7 +33,7 @@ function createWindow() {
   mainWindow.loadURL(
     isDev
       ? "http://localhost:5173"
-      : `file://${path.join(__dirname, "../dist/index.html")}`
+      : `file://${path.resolve(__dirname, "../../dist/renderer/index.html")}`
   );
 
   if (isDev) {
