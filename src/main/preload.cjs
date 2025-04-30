@@ -44,4 +44,18 @@ contextBridge.exposeInMainWorld("electron", {
     getById: (billId) => ipcRenderer.invoke("purchase:getById", billId),
     delete: (billId) => ipcRenderer.invoke("purchase:delete", billId),
   },
+  sale: {
+    getNextInvoiceNo: () => ipcRenderer.invoke("sale:getNextInvoiceNo"),
+    create: (data) => ipcRenderer.invoke("sale:create", data),
+    getDetails: (id) => ipcRenderer.invoke("sale:getDetails", id),
+  },
+  customer: {
+    getAll: () => ipcRenderer.invoke("customer:getAll"),
+  },
+  product: {
+    getAll: () => ipcRenderer.invoke("product:getAll"),
+  },
+  salesman: {
+    getAll: () => ipcRenderer.invoke("salesman:getAll"),
+  },
 });

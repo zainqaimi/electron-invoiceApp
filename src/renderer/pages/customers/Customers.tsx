@@ -1,7 +1,23 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 
-type CustomerData = {
-  id: any;
+import DataTable from "@/renderer/components/DataTable";
+import { StatsCard } from "@/renderer/components/StatsCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/renderer/components/ui/alert-dialog";
+import { AddCustomerModal } from "./AddCustomerModal";
+import { Button } from "@/renderer/components/ui/button";
+
+interface Customer {
+  id: number;
   name: string;
   email: string;
   phone: string;
@@ -9,229 +25,181 @@ type CustomerData = {
   balance: number;
   salesmen_id: number | null;
   status: string | null;
-  created_at: string;
-  updated_at: string;
-};
+  created_at?: string;
+}
 
-export default function Customers() {
-  const [customers, setCustomers] = useState<CustomerData[]>([]);
-  const [newCustomer, setNewCustomer] = useState<CustomerData>({
-    id: null,
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    balance: 0,
-    salesmen_id: null,
-    status: null,
-    created_at: "",
-    updated_at: "",
-  });
-  const [alertMsg, setAlertMsg] = useState<string>("");
-  const [salesmen, setSalesmen] = useState<any[]>([]); // To load salesmen list
+const Customers = () => {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Customer | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchCustomers = async () => {
-    const result = await window.electron.ipcRenderer.invoke("customers:get");
-    setCustomers(result);
+    setLoading(true);
+    try {
+      const result = await window.electron.ipcRenderer.invoke("customers:get");
+      setCustomers(result);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const fetchSalesmen = async () => {
-    const result = await window.electron.ipcRenderer.invoke("salesmen:get");
-    setSalesmen(result);
+  const handleDelete = async () => {
+    if (selectedRow) {
+      await window.electron.ipcRenderer.invoke(
+        "customers:delete",
+        selectedRow.id
+      );
+      await fetchCustomers();
+      setConfirmOpen(false);
+      setSelectedRow(null);
+    }
   };
+
+  const handleBulkDelete = async (rows: Customer[]) => {
+    try {
+      await Promise.all(
+        rows.map((row) =>
+          window.electron.ipcRenderer.invoke("customers:delete", row.id)
+        )
+      );
+      fetchCustomers();
+    } catch (error) {
+      console.error("Error bulk deleting customers:", error);
+    }
+  };
+
+  const columns = [
+    { key: "name", label: "Name", sortable: true },
+    { key: "email", label: "Email", sortable: true },
+    { key: "phone", label: "Phone", sortable: true },
+    { key: "address", label: "Address" },
+    { key: "balance", label: "Balance", sortable: true },
+    { key: "status", label: "Status", sortable: true },
+  ];
+
+  const totalCustomers = customers.length;
+  const activeCustomers = customers.filter((c) => c.status === "active").length;
+  const inactiveCustomers = customers.filter(
+    (c) => c.status === "inactive"
+  ).length;
+  const uniqueSalesmen = new Set(customers.map((c) => c.salesmen_id)).size;
+
+  const stats = [
+    {
+      title: "Total Customers",
+      value: totalCustomers.toString(),
+      description: "All registered customers",
+      icon: TrendingUpIcon,
+      trend: "up",
+      percentage: "100%",
+      footerText: "Updated live",
+    },
+    {
+      title: "Active",
+      value: activeCustomers.toString(),
+      description: "Active status",
+      icon: TrendingUpIcon,
+      trend: "up",
+      percentage: "↑",
+      footerText: "Customers using service",
+    },
+    {
+      title: "Inactive",
+      value: inactiveCustomers.toString(),
+      description: "Not using now",
+      icon: TrendingDownIcon,
+      trend: "down",
+      percentage: "↓",
+      footerText: "May need attention",
+    },
+    {
+      title: "Salesmen Linked",
+      value: uniqueSalesmen.toString(),
+      description: "Assigned reps",
+      icon: TrendingUpIcon,
+      trend: "neutral",
+      percentage: "-",
+      footerText: "From customer list",
+    },
+  ];
 
   useEffect(() => {
     fetchCustomers();
-    fetchSalesmen();
   }, []);
 
-  const clearForm = () => {
-    setNewCustomer({
-      id: null,
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      balance: 0,
-      salesmen_id: null,
-      status: null,
-      created_at: "",
-      updated_at: "",
-    });
-    setAlertMsg("");
-  };
-
-  const handleAddOrUpdateCustomer = async () => {
-    if (!newCustomer.name) {
-      setAlertMsg("❌ Name is required!");
-      return;
-    }
-
-    try {
-      if (newCustomer.id) {
-        // Update Mode
-        await window.electron.ipcRenderer.invoke(
-          "customers:update",
-          newCustomer.id,
-          newCustomer
-        );
-        setAlertMsg("✅ Customer updated!");
-      } else {
-        // Create Mode
-        await window.electron.ipcRenderer.invoke(
-          "customers:create",
-          newCustomer
-        );
-        setAlertMsg("✅ Customer added!");
-      }
-      fetchCustomers();
-      clearForm();
-    } catch (err: any) {
-      setAlertMsg(`❌ Error: ${err.message}`);
-    }
-  };
-
-  const handleEditCustomer = (customer: CustomerData) => {
-    setNewCustomer({ ...customer });
-    setAlertMsg("");
-  };
-
-  const handleDeleteCustomer = async (id: number) => {
-    await window.electron.ipcRenderer.invoke("customers:delete", id);
-    fetchCustomers();
-    setAlertMsg("✅ Customer deleted");
-  };
-
   return (
-    <div className="p-4 space-y-6 max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold">👥 Customers</h2>
-
-      {/* Add/Edit Customer Form */}
-      <div className="space-y-2 border p-4 rounded-xl shadow">
-        <h3 className="font-semibold">
-          {newCustomer.id ? "✏️ Edit Customer" : "➕ Add New Customer"}
-        </h3>
-        <input
-          className="w-full border p-2 rounded"
-          placeholder="Name"
-          value={newCustomer.name}
-          onChange={(e) =>
-            setNewCustomer({ ...newCustomer, name: e.target.value })
-          }
-        />
-        <input
-          className="w-full border p-2 rounded"
-          placeholder="Email"
-          value={newCustomer.email}
-          onChange={(e) =>
-            setNewCustomer({ ...newCustomer, email: e.target.value })
-          }
-        />
-        <input
-          className="w-full border p-2 rounded"
-          placeholder="Phone"
-          value={newCustomer.phone}
-          onChange={(e) =>
-            setNewCustomer({ ...newCustomer, phone: e.target.value })
-          }
-        />
-        <input
-          className="w-full border p-2 rounded"
-          placeholder="Address"
-          value={newCustomer.address}
-          onChange={(e) =>
-            setNewCustomer({ ...newCustomer, address: e.target.value })
-          }
-        />
-        <input
-          className="w-full border p-2 rounded bg-gray-100 text-gray-700"
-          placeholder="Balance"
-          value={newCustomer.balance}
-          readOnly
-        />
-
-        <select
-          className="w-full border p-2 rounded"
-          value={newCustomer.salesmen_id || ""}
-          onChange={(e) =>
-            setNewCustomer({
-              ...newCustomer,
-              salesmen_id: Number(e.target.value),
-            })
-          }
-        >
-          <option value="">Select Salesman</option>
-          {salesmen.map((salesman: any) => (
-            <option key={salesman.id} value={salesman.id}>
-              {salesman.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="w-full border p-2 rounded"
-          value={newCustomer.status || ""}
-          onChange={(e) =>
-            setNewCustomer({ ...newCustomer, status: e.target.value })
-          }
-        >
-          <option value="">Select Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={handleAddOrUpdateCustomer}
-        >
-          {newCustomer.id ? "Update Customer" : "Add Customer"}
-        </button>
-        {newCustomer.id && (
-          <button
-            className="ml-2 bg-gray-500 text-white px-3 py-2 rounded"
-            onClick={clearForm}
-          >
-            Cancel Edit
-          </button>
-        )}
-        {alertMsg && <div className="mt-2 font-medium">{alertMsg}</div>}
-      </div>
-
-      {/* All Customers List */}
-      <div className="space-y-2">
-        <h3 className="font-semibold">📃 All Customers</h3>
-        {customers.map((customer, i) => (
-          <div
-            key={i}
-            className="border-b py-2 flex items-center justify-between"
-          >
-            <div>
-              <div className="font-semibold">{customer.name}</div>
-              <div className="text-sm text-gray-600">{customer.email}</div>
-              <div className="text-sm text-gray-600">{customer.phone}</div>
-              <div className="text-sm text-gray-600">{customer.address}</div>
-              <div className="text-sm text-gray-600">
-                Balance:{customer.balance}
-              </div>
-              <div className="text-sm text-gray-400">{customer.status}</div>
-              <div className="text-sm text-gray-400">{customer.created_at}</div>
-            </div>
-            <div className="space-x-2">
-              <button
-                onClick={() => handleEditCustomer(customer)}
-                className="text-blue-600"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteCustomer(customer.id)}
-                className="text-red-600"
-              >
-                Delete
-              </button>
-            </div>
+    <div className="px-4 lg:px-6 space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, index) => (
+          <div className="h-full" key={index}>
+            <StatsCard {...stat} />
           </div>
         ))}
       </div>
+
+      <DataTable
+        title="Customers"
+        actionButton={
+          <Button
+            onClick={() => {
+              setEditingCustomer(null);
+              setModalOpen(true);
+            }}
+          >
+            Add Customer
+          </Button>
+        }
+        columns={columns}
+        data={customers}
+        loading={loading}
+        onEdit={(row: any) => {
+          setEditingCustomer(row);
+          setModalOpen(true);
+        }}
+        onDelete={(row: any) => {
+          setSelectedRow(row);
+          setConfirmOpen(true);
+        }}
+        onBulkDelete={(rows: any) => handleBulkDelete(rows)}
+        fixedHeight="600px"
+      />
+
+      {modalOpen && (
+        <AddCustomerModal
+          customer={editingCustomer}
+          onClose={() => {
+            setModalOpen(false);
+            setTimeout(() => {
+              setEditingCustomer(null);
+            }, 200);
+          }}
+          onCustomerAdded={fetchCustomers}
+        />
+      )}
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the customer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
-}
+};
+
+export default Customers;

@@ -2,7 +2,7 @@ import Company from "./Company";
 
 function Reports() {
   return (
-    <div>
+    <div className="overflow-auto">
       <h1>reports</h1>
       <Company />
     </div>

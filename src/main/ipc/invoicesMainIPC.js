@@ -1,6 +1,5 @@
 import { ipcMain } from "electron";
 import * as invoicesModel from "../models/invoicesModel.js";
-import * as invoiceItemsModel from "../models/invoice_itemsModel.js";
 import * as customerLedgerModel from "../models/customer_ledgerModel.js";
 
 // Create Invoice
@@ -42,13 +41,3 @@ ipcMain.handle("ledger:customer", async (event, customerId) => {
     throw error;
   }
 });
-
-// Get Invoice Items with product details (name, unit, packingType)
-// ipcMain.handle("invoice:items", async (event, invoiceId) => {
-//   try {
-//     return await invoiceItemsModel.getInvoiceItemsWithProductDetails(invoiceId);
-//   } catch (error) {
-//     console.error("Error fetching invoice items:", error);
-//     throw error;
-//   }
-// });

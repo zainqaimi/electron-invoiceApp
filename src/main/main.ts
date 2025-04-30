@@ -12,9 +12,8 @@ import "./ipc/productsIPC.js";
 import "./ipc/unitsIPC.js";
 import "./ipc/packingTypesIPC.js";
 import "./ipc/purchaseMainIPC.js";
-import "./ipc/invoicesMainIPC.js";
+import "./ipc/saleIPC.js";
 import "./ipc/backupIPC.js";
-import "./ipc/resetAppIPC.js";
 let mainWindow;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,7 +33,7 @@ function createWindow() {
   mainWindow.loadURL(
     isDev
       ? "http://localhost:5173"
-      : `file://${path.resolve(__dirname, "../../dist/renderer/index.html")}`
+      : `file://${path.join(__dirname, "../dist/index.html")}`
   );
 
   if (isDev) {
